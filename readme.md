@@ -27,7 +27,7 @@ The demo in this document is conducted with a development TMC stack in which a K
 
 ## Lab Exercises
 
-You will need to complete the steps in this section in your lab environment before attempting the remaining exercises in this lab guide/
+You will need to complete the steps in this section in your lab environment before attempting the remaining exercises in this lab guide.
 
 ### Step 1: Lab Setup
 
