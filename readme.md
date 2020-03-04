@@ -1,199 +1,166 @@
-**THIS GUIDE IS UNDER DEVELOPMENT AND MAY NOT BE FUNCTIONAL - THIS MESSAGE WILL BE REMOVED WHEN THE GUIDE IS READY FOR USE. IF YOU HAVE ANY QUESTIONS, PLEASE OPEN AN ISSUE TICKET. IF YOU WOULD LIKE TO CONTRIBUTE TO THIS GUIDE, PLEASE SUBMIT A PR WITH YOUR UPDATES, THANK YOU.** 
+**THIS GUIDE IS CURRENTLY IN ALPHA STATE. THE FEATURES COVERED WITHIN ARE FUNCTIONAL, HOWEVER THE STEPS IN THIS GUIDE MAY NOT BE COMPLETE. IF YOU USE THIS GUIDE, PLEASE LET US KNOW IF YOU HAVE ANY PROBLEMS OR SUGGESTIONS FOR IMPROVEMENT BY OPENING AN ISSUE TICKET. ALSO PLEASE ENTER A VALIDATION STAMP IF THE LAB WORKED FOR YOU. THANK YOU.** 
 
-**PLEASE DO NOT REMOVE ANYTHING ABOVE THIS LINE UNTIL YOUR GUIDE IS COMPLETE AND VALIDATED FOR END USER CONSUMPTION** 
-
-## ModernApps.ninja starter guide template 
-
-Please reference the content below for formatting examples, and replace with your desired content.
-# Lab Excercise Page Syle Template - 1st level - Main Header
+# Tanzu Mission Control - Network Policy Lab Guide
 
 **Contents:**
 
-- [Step 1: ]()
-- [Step 2: ]()
-- [Step 3: ]()
-- [Step 4: ]()
-- [Step 5: ]()
-- [Next Steps]()
+- [Introduction](#introduction)
+  - [Environment Pre-Requisites](#environment-pre-requisites)
+- [Lab Exercises](#lab-exercises)
+  - [Step 1: Lab Setup](#step-1-lab-setup)
+  - [Step 2: Deploy Wordpress](#step-2-deploy-wordpress)
+  - [Step 3: Apply and Examine Network Policy](#step-3-apply-and-examine-network-policy)
+  - [Step 4: Clean up lab environment](#step-4-clean-up-lab-environment)
+  - [Step 5: Validate Lab Guide](#step-5-validate-lab-guide)
 
-## Step 1: 2nd level header, steps often have multiple substeps and subsections
+## Introduction
 
-1.1 Uses dotted decimal numbering. This sentence 1.1 is a substep of step 1. Use a single decimal format for each substep that itself does not have other substeps. For substeps that have their own substeps, use a subsection format shown in steps 1.2 and 1.3
+Network Policy specifies how groups of pods are allowed to communicate with each other and other network endpoints, which is an important part of securing Kubernetes clusters. This document is intended to provide a guide to exploring basic usages of network policies in TMC. This demo script is validated on kind and provisioned clusters.
 
-This format is intended to find an optimal balance of usability for the user and flexibility and simplicity for content developers. As this paragraph demonstrates, its perfectly fine to add prose inline within each step as needed to sufficiently explain the step, keeping in mind that it is crucial for user experience to keep the document streamlined, and so recommend liberal use of hidden and expandable section blocks as shown below
+### Environment Pre-Requisites
 
-<details><summary>Click to expand</summary>
+The demo in this document is conducted with a development TMC stack in which a Kind cluster is attached:
 
-If you have any long text sections such as detailed explanations, code examples, configuration files, etc, please wrap them in expanding sections as shown here.
-
-Keep in mind this template is optimized for Lab Exercise guides which generally include lots of tasks that the reader needs to do. 
-
-Also please place all images inside expanding blocks, further details about images will be shown in step 1.4 below
-
+<details><summary>Screenshot</summary>
+<img src="media/2020-03-04-12-30-06.png">
 </details>
-<br/>
 
-1.2 Minor subsection headers
+## Lab Exercises
 
-1.2.1 if you have a substep that includes its own substeps, you need a subsection. This style guide offers two options for subsection handling, the minor subsection format shown here in step 1.2, and the major subsection format shown in step 1.3
+You will need to complete the steps in this section in your lab environment before attempting the remaining exercises in this lab guide/
 
-### 1.3 Major Subsection Headers
+### Step 1: Lab Setup
 
-Use major subsection headers whenever they are a better fit for the flow of your document. It is fine to use both minor and major subsection styles within the same document, so long as the overall flow and organization of the document make sense to the reader
+#### 1.1 Create a workspace and a namespace
 
-The rest of the text below is sample text copied from a lab exercise guide that uses this style
+In TMC UI, go to Workspaces→ New workspace to create a new workspace. In this example, a new workspace ws6 is created.
 
-1.3.1 Make a copy of the `frontend-deployment_all_k8s.yaml` file, save it as `frontend-deployment_ingress.yaml`
+Click Workspaces and then click the workspace that is created in this step. In the page of the workspace, click New namespace to create a new namespace under the workspace. Please make sure to select the attached cluster, as shown in the screenshot. Namespace ns6 is created.
 
-Example:
-`cp frontend-deployment_all_k8s.yaml frontend-deployment_ingress.yaml`
+<details><summary>Screenshot</summary>
+<img src="media/2020-03-03-14-40-47.png">
+</details>
 
-1.3.2 Get the URL of your smarcluster with the following command, be sure to replace 'afewell-cluster' with the name of your cluster:
+#### 1.2 Install a network plugin in the attached cluster
 
-``` bash
-vke cluster show afewell-cluster | grep Address
+First we need to install a network plugin that is compatible with Kubernetes network policies. For example, we install Calico CNI by running the following command. The below step is not needed for provisioned clusters.
+
+```bash
+curl https://docs.projectcalico.org/v3.11/manifests/calico.yaml -O
+kubectl apply -f calico.yaml
 ```
 
-<details><summary>Screenshot 1.3.2</summary>
-<img src="media/2018-10-20-15-45-19.png">
-</details>
-<br/>
+#### 1.3 Install Helm if it has not been installed (make sure to upgrade Helm even if is has been installed)
 
-1.3.3 Edit the `frontend-deployment_ingress.yaml` file, near the bottom of the file in the ingress spec section, change the value for spec.rules.host to URL for your smartcluster as shown in the following snippet:
+If you are using Mac OS you might simply run `brew install helm` to install Helm or `brew upgrade helm` to upgrade it (helm 3.0.2 is used in this demo script). For users of Linux/Windows, please follow [this guide](https://docs.bitnami.com/kubernetes/get-started-kubernetes/#step-4-install-helmr) to install Helm.
 
-NOTE: Be sure to replace the URL shown here with the URL for your own smartcluster
+### Step 2: Deploy Wordpress
 
-``` bash
-spec:
-  rules:
-  - host: afewell-cluster-69fc65f8-d37d-11e8-918b-0a1dada1e740.fa2c1d78-9f00-4e30-8268-4ab81862080d.vke-user.com
-    http:
-      paths:
-      - backend:
-          serviceName: planespotter-frontend
-          servicePort: 80
+#### 2.1 Install Wordpress (with MariaDB) using Helm
+
+Install Wordpress application by running the following command (it is named wp1 in this example).
+
+```bash
+helm repo add stable https://kubernetes-charts.storage.googleapis.com/
+helm install wp1 stable/wordpress -n ns6 --set serviceType=NodePort
 ```
 
-<details><summary>Click to expand to see the full contents of frontend-deployment_ingress.yaml</summary>
+#### 2.2 Validate Installation
 
-When reviewing the file contents below, observe that it includes a ClusterIP service spec which only provides an IP address that is usable for pod-to-pod communications in the cluster. The file also includes an ingress spec which implements the default VKE ingress controller.
+Make sure Wordpress' pods are ready by running the following command:
 
-In the following steps after you deploy the planespotter-frontend with ingress controller, you will be able to browse from your workstation to the running planespotter app in your VKE environment even though you have not assigned a nat or public IP for the service.
+`kubectl get pods -n ns6`
 
-Ingress controllers act as a proxies, recieving http/s requests from external clients and then based on the URL hostname or path, the ingress controller will proxy the request to the corresponding back-end service. For example mysite.com/path1 and mysite.com/path2 can be routed to different backing services running in the kubernetes cluster.
+The `READY` status should be similar to the screenshot below:
 
-In the file below, no rules are specified to different paths and so accordingly, all requests sent to the host defined in the spec, your VKE SmartCluster URL, will be proxied by the ingress controller to the planespotter-frontend ClusterIP service also defined in the frontend-deployment_ingress.yaml file
-
-``` bash
----
-apiVersion: apps/v1beta1
-kind: Deployment
-metadata:
-  name: planespotter-frontend
-  namespace: planespotter
-  labels:
-    app: planespotter-frontend
-    tier: frontend
-spec:
-  replicas: 2
-  selector:
-    matchLabels:
-      app: planespotter-frontend
-  template:
-    metadata:
-      labels:
-        app: planespotter-frontend
-        tier: frontend
-    spec:
-      containers:
-      - name: planespotter-fe
-        image: yfauser/planespotter-frontend:d0b30abec8bfdbde01a36d07b30b2a3802d9ccbb
-        imagePullPolicy: IfNotPresent
-        env:
-        - name: PLANESPOTTER_API_ENDPOINT
-          value: planespotter-svc
-        - name: TIMEOUT_REG
-          value: "5"
-        - name: TIMEOUT_OTHER
-          value: "5"
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: planespotter-frontend
-  namespace: planespotter
-  labels:
-    app: planespotter-frontend
-spec:
-  ports:
-    # the port that this service should serve on
-    - port: 80
-  selector:
-    app: planespotter-frontend
----
-apiVersion: extensions/v1beta1
-kind: Ingress
-metadata:
-  name: planespotter-frontend
-  namespace: planespotter
-spec:
-  rules:
-  - host: afewell-cluster-69fc65f8-d37d-11e8-918b-0a1dada1e740.fa2c1d78-9f00-4e30-8268-4ab81862080d.vke-user.com
-    http:
-      paths:
-      - backend:
-          serviceName: planespotter-frontend
-          servicePort: 80
-```
-
-</details>
-<br/>
-
-1.3.4 Run the updated planespotter-frontend app and verify deployment with the following commands. Make note of the external IP address/hostname shown in the output of `kubectl get services`
-
-``` bash
-kubectl create -f frontend-deployment_ingress.yaml
-kubectl get pods
-kubectl get deployments
-kubectl get services
-kubectl get ingress
-kubectl describe ingress
-```
-
-<details><summary>Screenshot 1.3.4</summary>
-<img src="media/2018-10-20-16-11-14.png">
+<details><summary>Screenshot</summary>
+<img src="media/2020-03-03-14-45-46.png">
 </details>
 
-1.3.5 Open a browser and go to the url of your VKE SmartCluster to verify that planespotter-frontend is externally accessible with the LoadBalancer service
+#### 2.3 Examine Network Service Configuration
 
-<details><summary>Screenshot 5.5.5</summary>
-<img src="media/2018-10-20-16-26-46.png">
+Get the service details for wordpress services by running the command below:
+
+`kubectl get svc -n ns6`
+
+A Kind cluster does not support Loadbalancers currently (which is why the EXTERNAL-IP is <pending>) so in this example we will use kubectl port-forwarding to enable external access to the wordpress service.
+
+Note that if you are using a different network service configuration to enable external access, such as node port, load balancer, or ingress,  you can use any preferred method to enable external access. If you have an alternative external IP configuration, you can use your external IP address rather than localhost and skip the following step to enable port-forwarding.
+
+As shown in the screenshot below, there are two ports 80 and 443, which we can then use in port-forward:
+
+<details><summary>Screenshot</summary>
+<img src="media/2020-03-04-09-40-31.png">
 </details>
-<br/>
 
-1.3.6 Clean up the planespotter-frontend components and verify with the following commands:
+#### 2.4 Use kubectl port-forward to enable external network access to wordpress
 
-``` bash
-kubectl delete -f frontend-deployment_ingress.yaml
-kubectl get pods
-kubectl get deployments
-kubectl get services
-kubectl get ingress
-```
+Enter the following command to enable port-forwarding to your wordpress service. Note that in the example command below, `wp1-wordpress` is the name of the wordpress service. If your wordpress service has a different name, be sure to update the command with the name of your wordpress service: 
 
-<details><summary>Screenshot 5.5.6</summary>
-<img src="media/2018-10-20-16-32-19.png">
+`kubectl port-forward svc/wp1-wordpress 8080:443 -n ns`
+
+#### 2.5 Access Wordpress UI
+
+Access your Wordpress application webpage by visiting https://localhost:8080 in a browser. The browser might prompt a security warning and in this case click the option it provides to proceed. If you are using a different external network configuration, enter the address of your external IP rather than localhost. 
+
+An example Wordpress application webpage is shown in the screenshot below.
+
+<details><summary>Screenshot</summary>
+<img src="media/2020-03-04-12-03-18.png">
 </details>
-<br/>
 
-## Next Steps
+### Step 3: Apply and Examine Network Policy
 
-This lab provided an introductory overview of Kubernetes operations. Additional topics such as persistent volumes, network policy, config maps, stateful sets and more will be covered in more detail in the ongoing labs.
+#### 3.1 Create Network Policy to deny traffic to your wordpress service
 
-If you are following the PKS Ninja cirriculum, [click here to proceed to the next lab](../Lab2-PksInstallationPhaseOne). As you proceed through the remaining labs you will learn more advanced details about Kubernetes using additional planespotter app components as examples and then deploy the complete planespotter application on a PKS environment.
+**CAUTION: This step implements a policy that will deny inbound traffic to all workspaces within the specified org. We strongly recommend against implementing this step on a kubernetes cluster that has any important services running, but if you do, ensure that there are no needed services running in the org you apply this policy to or inbound traffic to the services will be denied.**
 
-If you are not following the PKS Ninja cirriculum and would like to deploy the complete planespotter app on VKE, you can find [complete deployment instructions here](https://github.com/Boskey/run_kubernetes_with_vmware)
+In TMC UI, click Policies→ Network and then click WORKSPACES, select the org and click ADD NETWORK POLICY.
 
-### Thank you for completing the Introduction to Kubernetes Lab!
+Add a new 'deny all' network policy to the workspace as shown in the screenshot below:
 
-### [Please click here to proceed to Lab2: PKS Installation Phase 1](../Lab2-PksInstallationPhaseOne)
+<details><summary>Screenshot</summary>
+<img src="media/2020-03-04-12-06-52.png">
+</details>
+
+#### 3.2 Try to access wordpress UI with deny all network policy set
+
+Try to access the Wordpress application webpage again (repeat chapter 3.1.2).
+
+It should be unaccessible since the network policy deny all traffic on the resource(s).
+
+#### 3.3 Create 'allow all' network policy in the workspace level
+
+The previous step creates a 'deny all' network policy in the org level. In this step, we are going to create an an 'allow all' network policy in the workspace level to make an exception for this workspace which is to allow network traffic to this workspace. Follow most steps in chapter 3.2.1 but make sure to click the workspace and select 'allow all' when creating a new network policy the workspace.
+
+<details><summary>Screenshot</summary>
+<img src="media/2020-03-04-12-15-55.png">
+</details>
+
+#### 3.4 Try to access Wordpress webpage with allow all workspace level network policy set
+
+Try to access the Wordpress application webpage again.
+
+It should be accessible again since the network policy allow all traffic on the resource(s)
+
+<details><summary>Screenshot</summary>
+<img src="media/2020-03-04-12-03-18.png">
+</details>
+
+### Step 4: Clean up lab environment
+
+#### 4.1  Delete the network policy by following these steps: click Policies in UI → Network → WORKSPACES →  click the workspace where the policy is set → click the policy and click delete
+
+#### 4.2 Delete the installation of Wordpress by running the command below:
+
+`helm uninstall wp1 -n ns6`
+
+### Step 5: Validate Lab Guide
+
+If you were able to complete this lab successfully without any significant problems, please sign the validate.md file located in this directory. 
+
+If you encountered any problems, please open an issue ticket on this repository. 
+
+If you have any updates or improvements for this lab guide, please open a PR with your updates.
+
+### Thank you for completing the Tanzu Mission Control - Attaching Network Policy Lab Guide!
