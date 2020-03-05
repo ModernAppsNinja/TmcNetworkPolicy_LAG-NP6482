@@ -1,5 +1,3 @@
-**THIS GUIDE IS CURRENTLY IN ALPHA STATE. THE FEATURES COVERED WITHIN ARE FUNCTIONAL, HOWEVER THE STEPS IN THIS GUIDE MAY NOT BE COMPLETE. IF YOU USE THIS GUIDE, PLEASE LET US KNOW IF YOU HAVE ANY PROBLEMS OR SUGGESTIONS FOR IMPROVEMENT BY OPENING AN ISSUE TICKET. ALSO PLEASE ENTER A VALIDATION STAMP IF THE LAB WORKED FOR YOU. THANK YOU.** 
-
 # Tanzu Mission Control - Network Policy Lab Guide
 
 **Contents:**
@@ -17,6 +15,21 @@
 
 Network Policy specifies how groups of pods are allowed to communicate with each other and other network endpoints, which is an important part of securing Kubernetes clusters. This document is intended to provide a guide to exploring basic usages of network policies in TMC. This demo script is validated on kind and provisioned clusters.
 
+### Before Attempting This Lab:
+
+This lab has a completion difficulty of `Partial`. Please see the rubrik below for an explanation of lab completion difficulty rankings
+
+Lab Completion Difficulty Rankings:
+
+- Lab Completion Difficulty is not a measure of how complex or difficult a topic is, it is a measure of how thorough the instructions are in the provided lab guide:
+- Difficulty Levels:
+  - `Complete`
+    - A lab guide with a difficulty of `Complete` includes comprehensive, click-by-click instructions, usually with a screenshot for every command entered. Complete labs must be associated with an online lab environment fully prepped to execute the exact instructions provided in the lab guide. Most users could successfully execute the steps in a `Complete` lab guide, even if they do not have expertise in the subject, by following detailed instructions.
+  - `Partial`
+    - A lab guide with a difficulty of `Partial` includes full instructions to complete the exercise, with enough detail to where a user with moderate experience in the subject matter could complete the exercise. `Partial` lab guides provide a level of detail similar to most typical technical documentation, where the user is expected to be able to configure their lab environment with dependencies required for the exercise, and to contextualize general instructions to the users own environment. 
+  - `Challenge`
+    - A lab guide with a difficulty of `Challenge` is designed to be technically challenging for the guide's target audience to complete. `Challenge` lab guides do not include comprehensive instructions, and intentionally leave out details required to complete exercises as a challenge or test of the users proficiency in a topic.
+
 ### Environment Pre-Requisites
 
 The demo in this document is conducted with a development TMC stack in which a Kind cluster is attached:
@@ -27,7 +40,7 @@ The demo in this document is conducted with a development TMC stack in which a K
 
 ## Lab Exercises
 
-You will need to complete the steps in this section in your lab environment before attempting the remaining exercises in this lab guide.
+You will need to complete the steps in this section in your lab environment before attempting the remaining exercises in this lab guide/
 
 ### Step 1: Lab Setup
 
