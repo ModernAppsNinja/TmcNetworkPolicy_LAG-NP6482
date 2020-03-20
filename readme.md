@@ -19,7 +19,7 @@ Network Policy specifies how groups of pods are allowed to communicate with each
 
 This lab has a completion difficulty of `Partial`. Please see the rubrik below for an explanation of lab completion difficulty rankings
 
-Lab Completion Difficulty Rankings:
+Lab Completion Difficulty Rankings: 
 
 - Lab Completion Difficulty is not a measure of how complex or difficult a topic is, it is a measure of how thorough the instructions are in the provided lab guide:
 - Difficulty Levels:
