@@ -14,8 +14,8 @@ cd $APP_NAME
 git fetch origin $CURRENT_BRANCH
 git checkout $CURRENT_BRANCH
 
-## add any commands below that you would like to have executed after a PR is submitted, where the effects of the commands are merged back into the pr
-echo "The post-pr-run.sh script is executing"
+## Enter any of your own commands here. If the results modify the contents of this pullrequest, the changes will be merged back into the pullrequest.
+echo "echo from the post-pr-run.sh"
 
 ## add and commit the changes made to the repo and push back into the pullrequest
 git add .
