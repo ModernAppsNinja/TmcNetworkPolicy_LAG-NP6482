@@ -17,7 +17,7 @@ Network Policy specifies how groups of pods are allowed to communicate with each
 
 ### Before Attempting This Lab:
 
-This lab has a completion difficulty of `Partial`. Please see the rubrik below for an explanation of lab completion difficulty rankings
+This lab has a completion difficulty of `Partial`. Please see the rubrik below for an explanation of lab completion difficulty rankings.
 
 Lab Completion Difficulty Rankings:
 
@@ -26,7 +26,7 @@ Lab Completion Difficulty Rankings:
   - `Complete`
     - A lab guide with a difficulty of `Complete` includes comprehensive, click-by-click instructions, usually with a screenshot for every command entered. Complete labs must be associated with an online lab environment fully prepped to execute the exact instructions provided in the lab guide. Most users could successfully execute the steps in a `Complete` lab guide, even if they do not have expertise in the subject, by following detailed instructions.
   - `Partial`
-    - A lab guide with a difficulty of `Partial` includes full instructions to complete the exercise, with enough detail to where a user with moderate experience in the subject matter could complete the exercise. `Partial` lab guides provide a level of detail similar to most typical technical documentation, where the user is expected to be able to configure their lab environment with dependencies required for the exercise, and to contextualize general instructions to the users own environment. 
+    - A lab guide with a difficulty of `Partial` includes full instructions to complete the exercise, with enough detail to where a user with moderate experience in the subject matter could complete the exercise. `Partial` lab guides provide a level of detail similar gto most typical technical documentation, where the user is expected to be able to configure their lab environment with dependencies required for the exercise, and to contextualize general instructions to the users own environment. 
   - `Challenge`
     - A lab guide with a difficulty of `Challenge` is designed to be technically challenging for the guide's target audience to complete. `Challenge` lab guides do not include comprehensive instructions, and intentionally leave out details required to complete exercises as a challenge or test of the users proficiency in a topic.
 
@@ -39,8 +39,6 @@ The demo in this document is conducted with a development TMC stack in which a K
 </details>
 
 ## Lab Exercises
-
-You will need to complete the steps in this section in your lab environment before attempting the remaining exercises in this lab guide/
 
 ### Step 1: Lab Setup
 
@@ -170,9 +168,9 @@ It should be accessible again since the network policy allow all traffic on the 
 
 ### Step 5: Validate Lab Guide
 
-If you were able to complete this lab successfully without any significant problems, please sign the validate.md file located in this directory. 
+If you were able to complete this lab successfully without any significant problems, please sign the [validate.md](./validate.md) file located in this directory. 
 
-If you encountered any problems, please open an issue ticket on this repository. 
+If you encountered any problems or have suggestions or feature requests, please open an issue ticket on this repository. 
 
 If you have any updates or improvements for this lab guide, please open a PR with your updates.
 
